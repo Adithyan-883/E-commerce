@@ -1,13 +1,31 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import HeroSection from '../components/home/HeroSection'
 import ProductCard from '../components/product/ProductCard'
 import TestimonialCard from '../components/home/TestimonialCard'
-import { products, testimonials } from '../constants/dummyData'
+import { SkeletonLoader } from '../components/common/SkeletonLoader'
+import { productService } from '../services/productService'
+import { testimonials } from '../constants/dummyData'
 
 const Home = () => {
-  const featuredProducts = products.slice(0, 4)
+  const [featuredProducts, setFeaturedProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await productService.getAllProducts();
+        setFeaturedProducts(data.slice(0, 4));
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
   return (
     <div className="space-y-20 pb-16">
       <HeroSection />
@@ -26,9 +44,17 @@ const Home = () => {
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2 xl:grid-cols-4">
-          {featuredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+          {loading ? (
+            Array(4).fill(0).map((_, i) => <SkeletonLoader key={i} />)
+          ) : error ? (
+            <div className="col-span-4 rounded-xl bg-red-50 p-6 text-center text-red-600">
+              {error}
+            </div>
+          ) : (
+            featuredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))
+          )}
         </div>
       </section>
 

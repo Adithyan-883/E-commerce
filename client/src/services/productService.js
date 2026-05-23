@@ -1,9 +1,6 @@
 import api from '../api/axios';
 import { products as dummyProducts } from '../constants/dummyData';
 
-// Simulated delay for dummy data fallback
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
 class ProductService {
   /**
    * Fetch all products
@@ -11,12 +8,10 @@ class ProductService {
    */
   async getAllProducts() {
     try {
-      // Attempt API call (will fail if backend is down)
       const response = await api.get('/products');
       return response.data;
     } catch (error) {
-      console.warn('Backend not available, using dummy data for products.');
-      await delay(800); // Simulate network request
+      console.warn('Backend MongoDB is not running yet! Falling back to dummy data so the UI continues to work.');
       return dummyProducts;
     }
   }
@@ -31,8 +26,7 @@ class ProductService {
       const response = await api.get(`/products/${id}`);
       return response.data;
     } catch (error) {
-      console.warn(`Backend not available, fetching dummy product for ID: ${id}`);
-      await delay(500);
+      console.warn(`Backend MongoDB is not running yet! Falling back to dummy product for ID: ${id}`);
       const product = dummyProducts.find(p => p.id === id);
       if (!product) throw new Error('Product not found');
       return product;
@@ -50,7 +44,7 @@ class ProductService {
       const response = await api.get(`/products/related?category=${category}&exclude=${excludeId}`);
       return response.data;
     } catch (error) {
-      await delay(500);
+      console.warn('Backend MongoDB is not running yet! Falling back to dummy related products.');
       return dummyProducts
         .filter(item => item.category === category && item.id !== excludeId)
         .slice(0, 4);

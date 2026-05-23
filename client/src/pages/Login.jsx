@@ -1,23 +1,36 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 import { FcGoogle } from 'react-icons/fc'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+import { authService } from '../services/authService'
+
+const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters")
+})
 
 const Login = () => {
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const location = useLocation()
+  const [apiError, setApiError] = useState('')
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
-    if (!email || !password) {
-      setError('Please provide both email and password.')
-      return
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+    resolver: zodResolver(loginSchema)
+  })
+
+  const onSubmit = async (data) => {
+    try {
+      setApiError('')
+      await authService.login(data.email, data.password)
+      toast.success('Successfully logged in!')
+      const from = location.state?.from?.pathname || '/'
+      navigate(from, { replace: true })
+    } catch (err) {
+      setApiError(err.message || 'Login failed')
     }
-    setError('')
-    toast.success('Successfully logged in!')
-    navigate('/')
   }
 
   const handleGoogleLogin = () => {
@@ -44,21 +57,23 @@ const Login = () => {
           <div className="h-[1px] flex-1 bg-slate-200"></div>
         </div>
 
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div>
-            <label className="mb-2 block text-sm font-medium text-[#475569]">Email address</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-5 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" placeholder="name@example.com" />
+            <label htmlFor="email" className="mb-2 block text-sm font-medium text-[#475569]">Email address</label>
+            <input id="email" type="email" {...register('email')} className={`w-full rounded-3xl border bg-[#FACC15]/10 px-5 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 ${errors.email ? 'border-red-500' : 'border-[#22c622]/20 focus:border-[#22c622]'}`} placeholder="name@example.com" />
+            {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-[#475569]">Password</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-5 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" placeholder="Enter your password" />
+            <label htmlFor="password" className="mb-2 block text-sm font-medium text-[#475569]">Password</label>
+            <input id="password" type="password" {...register('password')} className={`w-full rounded-3xl border bg-[#FACC15]/10 px-5 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 ${errors.password ? 'border-red-500' : 'border-[#22c622]/20 focus:border-[#22c622]'}`} placeholder="Enter your password" />
+            {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
           </div>
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {apiError && <p className="text-sm text-red-500">{apiError}</p>}
 
-          <button type="submit" className="w-full rounded-full bg-[#22c622] px-6 py-4 text-base font-semibold text-white transition duration-300 hover:bg-[#FACC15] hover:text-[#1E3A1A]">
-            Sign in
+          <button type="submit" disabled={isSubmitting} className="w-full rounded-full bg-[#22c622] px-6 py-4 text-base font-semibold text-white transition duration-300 hover:bg-[#FACC15] hover:text-[#1E3A1A] disabled:opacity-70">
+            {isSubmitting ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
 

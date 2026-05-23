@@ -24,12 +24,15 @@ export const CartProvider = ({ children }) => {
   const addToCart = (product, quantity = 1) => {
     setCartItems((currentItems) => {
       const existingItem = currentItems.find((item) => item.id === product.id)
+      const stockLimit = product.stock !== undefined ? product.stock : Infinity
+
       if (existingItem) {
+        const newQuantity = Math.min(existingItem.quantity + quantity, stockLimit)
         return currentItems.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+          item.id === product.id ? { ...item, quantity: newQuantity } : item
         )
       }
-      return [...currentItems, { ...product, quantity }]
+      return [...currentItems, { ...product, quantity: Math.min(quantity, stockLimit) }]
     })
   }
 
@@ -39,7 +42,13 @@ export const CartProvider = ({ children }) => {
 
   const incrementQuantity = (id) => {
     setCartItems((currentItems) =>
-      currentItems.map((item) => (item.id === id ? { ...item, quantity: item.quantity + 1 } : item))
+      currentItems.map((item) => {
+        if (item.id === id) {
+          const stockLimit = item.stock !== undefined ? item.stock : Infinity
+          return { ...item, quantity: Math.min(item.quantity + 1, stockLimit) }
+        }
+        return item
+      })
     )
   }
 

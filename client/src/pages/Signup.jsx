@@ -2,28 +2,38 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 import { FcGoogle } from 'react-icons/fc'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+import { authService } from '../services/authService'
+
+const signupSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"]
+});
 
 const Signup = () => {
   const navigate = useNavigate()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [error, setError] = useState('')
+  const [apiError, setApiError] = useState('')
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
-    if (!name || !email || !password || !confirmPassword) {
-      setError('Please fill in all fields.')
-      return
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+    resolver: zodResolver(signupSchema)
+  })
+
+  const onSubmit = async (data) => {
+    try {
+      setApiError('')
+      await authService.register({ name: data.name, email: data.email, password: data.password })
+      toast.success('Account created successfully!')
+      navigate('/')
+    } catch (err) {
+      setApiError(err.message || 'Signup failed')
     }
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.')
-      return
-    }
-    setError('')
-    toast.success('Account created successfully!')
-    navigate('/')
   }
 
   const handleGoogleSignup = () => {
@@ -50,32 +60,36 @@ const Signup = () => {
           <div className="h-[1px] flex-1 bg-slate-200"></div>
         </div>
 
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div>
-            <label className="mb-2 block text-sm font-medium text-[#475569]">Full name</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-5 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" placeholder="Your name" />
+            <label htmlFor="name" className="mb-2 block text-sm font-medium text-[#475569]">Full name</label>
+            <input id="name" {...register('name')} className={`w-full rounded-3xl border bg-[#FACC15]/10 px-5 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 ${errors.name ? 'border-red-500' : 'border-[#22c622]/20 focus:border-[#22c622]'}`} placeholder="Your name" />
+            {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-[#475569]">Email address</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-5 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" placeholder="name@example.com" />
+            <label htmlFor="email" className="mb-2 block text-sm font-medium text-[#475569]">Email address</label>
+            <input id="email" type="email" {...register('email')} className={`w-full rounded-3xl border bg-[#FACC15]/10 px-5 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 ${errors.email ? 'border-red-500' : 'border-[#22c622]/20 focus:border-[#22c622]'}`} placeholder="name@example.com" />
+            {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div>
-              <label className="mb-2 block text-sm font-medium text-[#475569]">Password</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-5 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" placeholder="Password" />
+              <label htmlFor="password" className="mb-2 block text-sm font-medium text-[#475569]">Password</label>
+              <input id="password" type="password" {...register('password')} className={`w-full rounded-3xl border bg-[#FACC15]/10 px-5 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 ${errors.password ? 'border-red-500' : 'border-[#22c622]/20 focus:border-[#22c622]'}`} placeholder="Password" />
+              {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-[#475569]">Confirm password</label>
-              <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-5 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" placeholder="Confirm password" />
+              <label htmlFor="confirmPassword" className="mb-2 block text-sm font-medium text-[#475569]">Confirm password</label>
+              <input id="confirmPassword" type="password" {...register('confirmPassword')} className={`w-full rounded-3xl border bg-[#FACC15]/10 px-5 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 ${errors.confirmPassword ? 'border-red-500' : 'border-[#22c622]/20 focus:border-[#22c622]'}`} placeholder="Confirm password" />
+              {errors.confirmPassword && <p className="mt-1 text-xs text-red-500">{errors.confirmPassword.message}</p>}
             </div>
           </div>
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {apiError && <p className="text-sm text-red-500">{apiError}</p>}
 
-          <button type="submit" className="w-full rounded-full bg-[#22c622] px-6 py-4 text-base font-semibold text-white transition duration-300 hover:bg-[#FACC15] hover:text-[#1E3A1A]">
-            Create account
+          <button type="submit" disabled={isSubmitting} className="w-full rounded-full bg-[#22c622] px-6 py-4 text-base font-semibold text-white transition duration-300 hover:bg-[#FACC15] hover:text-[#1E3A1A] disabled:opacity-70">
+            {isSubmitting ? 'Creating account...' : 'Create account'}
           </button>
         </form>
 

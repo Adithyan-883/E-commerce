@@ -1,6 +1,17 @@
-import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
 import { useCart } from '../context/CartContext'
+
+const checkoutSchema = z.object({
+  fullName: z.string().min(2, "Full name is required"),
+  email: z.string().email("Invalid email address"),
+  address: z.string().min(5, "Address must be at least 5 characters"),
+  city: z.string().min(2, "City is required"),
+  postalCode: z.string().min(4, "Postal code is required"),
+  country: z.string().min(2, "Country is required"),
+})
 
 const Checkout = () => {
   const { cartItems, cartTotal } = useCart()
@@ -11,23 +22,12 @@ const Checkout = () => {
   const itemsToCheckout = buyNowItem ? [{ ...buyNowItem, quantity: 1 }] : cartItems
   const subtotal = buyNowItem ? buyNowItem.price : cartTotal
 
-  const [formValue, setFormValue] = useState({ fullName: '', email: '', address: '', city: '', postalCode: '', country: '' })
-  
-  const shipping = subtotal >= 299 ? 0 : 49
-  const discount = subtotal >= 999 ? subtotal * 0.1 : 0
-  const total = subtotal > 0 ? subtotal - discount + shipping : 0
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(checkoutSchema)
+  })
 
-  const handleChange = (event) => {
-    setFormValue({ ...formValue, [event.target.name]: event.target.value })
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!formValue.fullName || !formValue.email || !formValue.address || !formValue.city || !formValue.postalCode || !formValue.country) {
-      // In a real app, toast an error here
-      return;
-    }
-    navigate('/payment', { state: { total, isBuyNow: !!buyNowItem } })
+  const onSubmit = (data) => {
+    navigate('/payment', { state: { total, isBuyNow: !!buyNowItem, shippingData: data } })
   }
 
   return (
@@ -38,7 +38,7 @@ const Checkout = () => {
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[1.4fr,_0.9fr]">
-        <form id="checkout-form" onSubmit={handleSubmit} className="space-y-6 rounded-[2rem] border border-[#22c622]/10 bg-white p-8 shadow-xl sm:p-10">
+        <form id="checkout-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6 rounded-[2rem] border border-[#22c622]/10 bg-white p-8 shadow-xl sm:p-10">
           <div>
             <h2 className="text-2xl font-semibold text-[#1E3A1A]">Shipping details</h2>
             <p className="mt-3 text-sm leading-7 text-[#475569]">Enter your delivery address and contact information.</p>
@@ -46,30 +46,36 @@ const Checkout = () => {
           <div className="grid gap-6 sm:grid-cols-2">
             <label htmlFor="fullName" className="block">
               <span className="text-sm font-medium text-[#475569]">Full name</span>
-              <input id="fullName" name="fullName" required value={formValue.fullName} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
+              <input id="fullName" {...register('fullName')} className={`mt-3 w-full rounded-3xl border bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 ${errors.fullName ? 'border-red-500' : 'border-[#22c622]/20 focus:border-[#22c622]'}`} />
+              {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName.message}</p>}
             </label>
             <label htmlFor="email" className="block">
               <span className="text-sm font-medium text-[#475569]">Email address</span>
-              <input id="email" name="email" type="email" required value={formValue.email} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
+              <input id="email" type="email" {...register('email')} className={`mt-3 w-full rounded-3xl border bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 ${errors.email ? 'border-red-500' : 'border-[#22c622]/20 focus:border-[#22c622]'}`} />
+              {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
             </label>
           </div>
           <label htmlFor="address" className="block">
             <span className="text-sm font-medium text-[#475569]">Address</span>
-            <input id="address" name="address" required value={formValue.address} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
+            <input id="address" {...register('address')} className={`mt-3 w-full rounded-3xl border bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 ${errors.address ? 'border-red-500' : 'border-[#22c622]/20 focus:border-[#22c622]'}`} />
+            {errors.address && <p className="mt-1 text-xs text-red-500">{errors.address.message}</p>}
           </label>
           <div className="grid gap-6 sm:grid-cols-2">
             <label htmlFor="city" className="block">
               <span className="text-sm font-medium text-[#475569]">City</span>
-              <input id="city" name="city" required value={formValue.city} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
+              <input id="city" {...register('city')} className={`mt-3 w-full rounded-3xl border bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 ${errors.city ? 'border-red-500' : 'border-[#22c622]/20 focus:border-[#22c622]'}`} />
+              {errors.city && <p className="mt-1 text-xs text-red-500">{errors.city.message}</p>}
             </label>
             <label htmlFor="postalCode" className="block">
               <span className="text-sm font-medium text-[#475569]">Postal code</span>
-              <input id="postalCode" name="postalCode" required value={formValue.postalCode} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
+              <input id="postalCode" {...register('postalCode')} className={`mt-3 w-full rounded-3xl border bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 ${errors.postalCode ? 'border-red-500' : 'border-[#22c622]/20 focus:border-[#22c622]'}`} />
+              {errors.postalCode && <p className="mt-1 text-xs text-red-500">{errors.postalCode.message}</p>}
             </label>
           </div>
           <label htmlFor="country" className="block">
             <span className="text-sm font-medium text-[#475569]">Country</span>
-            <input id="country" name="country" required value={formValue.country} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
+            <input id="country" {...register('country')} className={`mt-3 w-full rounded-3xl border bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 ${errors.country ? 'border-red-500' : 'border-[#22c622]/20 focus:border-[#22c622]'}`} />
+            {errors.country && <p className="mt-1 text-xs text-red-500">{errors.country.message}</p>}
           </label>
         </form>
 

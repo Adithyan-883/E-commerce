@@ -5,6 +5,8 @@ import { CartProvider } from './context/CartContext'
 import Navbar from './components/common/Navbar'
 import Footer from './components/common/Footer'
 import Loader from './components/common/Loader'
+import ErrorBoundary from './components/common/ErrorBoundary'
+import ProtectedRoute from './components/common/ProtectedRoute'
 
 // Lazy loaded pages
 const Home = React.lazy(() => import('./pages/Home'))
@@ -15,6 +17,8 @@ const Checkout = React.lazy(() => import('./pages/Checkout'))
 const Payment = React.lazy(() => import('./pages/Payment'))
 const Admin = React.lazy(() => import('./pages/Admin'))
 const NotFound = React.lazy(() => import('./pages/NotFound'))
+const Login = React.lazy(() => import('./pages/Login'))
+const Signup = React.lazy(() => import('./pages/Signup'))
 
 function App() {
   return (
@@ -24,18 +28,22 @@ function App() {
           <Toaster position="top-center" />
           <Navbar />
         <main className="pt-24 min-h-[80vh]">
-          <Suspense fallback={<div className="flex min-h-[50vh] items-center justify-center"><Loader /></div>}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/product/:id" element={<ProductDetails />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/payment" element={<Payment />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+          <ErrorBoundary>
+            <Suspense fallback={<div className="flex min-h-[50vh] items-center justify-center"><Loader /></div>}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/product/:id" element={<ProductDetails />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/payment" element={<Payment />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/admin" element={<ProtectedRoute requireAdmin={true}><Admin /></ProtectedRoute>} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
         </main>
         <Footer />
       </div>
