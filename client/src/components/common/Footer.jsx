@@ -18,8 +18,7 @@ const Footer = () => {
               <h4 className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#22c622]">Explore</h4>
               <ul className="space-y-2 text-sm text-[#475569]">
                 <li><Link to="/products" className="transition hover:text-[#FACC15]">Shop all</Link></li>
-                <li><Link to="/login" className="transition hover:text-[#FACC15]">Login</Link></li>
-                <li><Link to="/signup" className="transition hover:text-[#FACC15]">Signup</Link></li>
+                <li><Link to="/cart" className="transition hover:text-[#FACC15]">Cart</Link></li>
               </ul>
             </div>
             <div>

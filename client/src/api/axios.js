@@ -58,15 +58,8 @@ api.interceptors.response.use(
           toast.error(`Error: ${message}`);
           break;
         case 401:
-          message = backendMessage || 'Session expired or not authorized. Please sign in again.';
+          message = backendMessage || 'Not authorized to access this resource.';
           toast.error(message);
-          localStorage.removeItem('user');
-          // Optional: redirect to login if the error didn't occur on authentication routes
-          if (!error.config.url.includes('/users/auth')) {
-            setTimeout(() => {
-              window.location.href = '/login';
-            }, 1500);
-          }
           break;
         case 403:
           message = backendMessage || 'Access denied. You do not have permissions to access this page.';

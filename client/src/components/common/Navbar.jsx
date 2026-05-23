@@ -15,6 +15,7 @@ const Navbar = () => {
           Payyanur Gold
         </Link>
 
+        {/* Desktop nav — Home, Products, Cart only */}
         <div className="hidden items-center gap-8 md:flex">
           <Link to="/" className="transition hover:text-[#22c622]">Home</Link>
           <Link to="/products" className="transition hover:text-[#22c622]">Products</Link>
@@ -24,8 +25,6 @@ const Navbar = () => {
               {cartCount}
             </span>
           </Link>
-          <Link to="/admin" className="transition hover:text-[#22c622]">Admin</Link>
-
         </div>
 
         <button
@@ -36,14 +35,13 @@ const Navbar = () => {
         </button>
       </div>
 
+      {/* Mobile nav — Home, Products, Cart only */}
       {open && (
         <div className="border-t border-[#22c622]/10 bg-white px-6 pb-6 text-[#1E3A1A] md:hidden">
           <div className="space-y-4 pt-4">
             <Link to="/" onClick={() => setOpen(false)} className="block rounded-xl px-3 py-3 transition hover:bg-[#22c622]/10 hover:text-[#22c622]">Home</Link>
             <Link to="/products" onClick={() => setOpen(false)} className="block rounded-xl px-3 py-3 transition hover:bg-[#22c622]/10 hover:text-[#22c622]">Products</Link>
             <Link to="/cart" onClick={() => setOpen(false)} className="block rounded-xl px-3 py-3 transition hover:bg-[#22c622]/10 hover:text-[#22c622]">Cart</Link>
-            <Link to="/admin" onClick={() => setOpen(false)} className="block rounded-xl px-3 py-3 transition hover:bg-[#22c622]/10 hover:text-[#22c622]">Admin</Link>
-
           </div>
         </div>
       )}

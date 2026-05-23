@@ -3,9 +3,11 @@ const mongoose = require('mongoose');
 const orderSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'User'
+    ref: 'User',
+    required: false  // optional — guest orders have no associated user account
   },
+  guestName: { type: String, default: '' },
+  guestEmail: { type: String, default: '' },
   orderItems: [
     {
       title: { type: String, required: true },

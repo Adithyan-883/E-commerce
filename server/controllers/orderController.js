@@ -1,8 +1,8 @@
 const Order = require('../models/Order');
 
-// @desc    Create new order
+// @desc    Create new order (guest — no auth required)
 // @route   POST /api/orders
-// @access  Private
+// @access  Public
 const addOrderItems = async (req, res, next) => {
   try {
     const {
@@ -13,6 +13,8 @@ const addOrderItems = async (req, res, next) => {
       taxPrice,
       shippingPrice,
       totalPrice,
+      guestName,
+      guestEmail,
     } = req.body;
 
     if (!orderItems || orderItems.length === 0) {
@@ -21,18 +23,20 @@ const addOrderItems = async (req, res, next) => {
     }
 
     const order = new Order({
+      // user is optional — omit it for guest checkout
       orderItems: orderItems.map((x) => ({
         ...x,
         product: x._id,
         _id: undefined,
       })),
-      user: req.user._id,
       shippingAddress,
       paymentMethod,
       itemsPrice,
       taxPrice,
       shippingPrice,
       totalPrice,
+      guestName: guestName || shippingAddress?.fullName || 'Guest',
+      guestEmail: guestEmail || shippingAddress?.email || '',
     });
 
     const createdOrder = await order.save();
