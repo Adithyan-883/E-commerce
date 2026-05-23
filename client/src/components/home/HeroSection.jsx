@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 
 const HeroSection = () => {
   return (
-    <section className="relative overflow-hidden px-4 py-16 sm:px-6 lg:px-8 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/images/Background.jpeg')" }}>
+    <section className="relative overflow-hidden px-4 py-16 sm:px-6 lg:px-8 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/images/Background.webp')" }}>
       <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px]"></div>
       <div className="relative mx-auto max-w-7xl z-10">
         <motion.div

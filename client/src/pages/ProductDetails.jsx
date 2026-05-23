@@ -72,7 +72,6 @@ const ProductDetails = () => {
         ? { ...product, price: packs[selectedPack].price, title: `${product.title} - ${packs[selectedPack].label}` }
         : { ...product }
       addToCart(itemToAdd, 1)
-      toast.success(`${itemToAdd.title} added to cart!`)
     }
   }
 

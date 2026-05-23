@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useMemo, useEffect } from 'react'
+import { toast } from 'react-hot-toast'
 
 const CartContext = createContext(undefined)
 
@@ -22,30 +23,60 @@ export const CartProvider = ({ children }) => {
   }, [cartItems])
 
   const addToCart = (product, quantity = 1) => {
+    // Validate quantity is valid and positive
+    if (typeof quantity !== 'number' || isNaN(quantity) || quantity <= 0) {
+      toast.error('Invalid quantity value.');
+      return;
+    }
+
     setCartItems((currentItems) => {
       const existingItem = currentItems.find((item) => item.id === product.id)
-      const stockLimit = product.stock !== undefined ? product.stock : Infinity
+      const stock = product.stock !== undefined ? Number(product.stock) : Infinity
+      const currentQty = existingItem ? existingItem.quantity : 0
 
+      if (stock <= 0) {
+        toast.error(`${product.title} is currently out of stock.`);
+        return currentItems;
+      }
+
+      if (currentQty + quantity > stock) {
+        toast.error(`Cannot add more. Only ${stock} items available in stock.`);
+        
+        // Cap the item quantity at the maximum available stock
+        const cappedQty = stock;
+        if (existingItem) {
+          return currentItems.map((item) =>
+            item.id === product.id ? { ...item, quantity: cappedQty } : item
+          )
+        }
+        return [...currentItems, { ...product, quantity: cappedQty }]
+      }
+
+      toast.success(`${product.title} added to cart!`);
       if (existingItem) {
-        const newQuantity = Math.min(existingItem.quantity + quantity, stockLimit)
         return currentItems.map((item) =>
-          item.id === product.id ? { ...item, quantity: newQuantity } : item
+          item.id === product.id ? { ...item, quantity: currentQty + quantity } : item
         )
       }
-      return [...currentItems, { ...product, quantity: Math.min(quantity, stockLimit) }]
+      return [...currentItems, { ...product, quantity }]
     })
   }
 
   const removeFromCart = (id) => {
     setCartItems((currentItems) => currentItems.filter((item) => item.id !== id))
+    toast.success('Item removed from cart.');
   }
 
   const incrementQuantity = (id) => {
     setCartItems((currentItems) =>
       currentItems.map((item) => {
         if (item.id === id) {
-          const stockLimit = item.stock !== undefined ? item.stock : Infinity
-          return { ...item, quantity: Math.min(item.quantity + 1, stockLimit) }
+          const stock = item.stock !== undefined ? Number(item.stock) : Infinity
+          if (item.quantity >= stock) {
+            toast.error(`Cannot increment. Only ${stock} items available in stock.`);
+            return item;
+          }
+          return { ...item, quantity: item.quantity + 1 }
         }
         return item
       })
@@ -54,7 +85,13 @@ export const CartProvider = ({ children }) => {
 
   const decrementQuantity = (id) => {
     setCartItems((currentItems) =>
-      currentItems.map((item) => (item.id === id ? { ...item, quantity: Math.max(1, item.quantity - 1) } : item))
+      currentItems.map((item) => {
+        if (item.id === id) {
+          // Quantities cannot go below 1
+          return { ...item, quantity: Math.max(1, item.quantity - 1) }
+        }
+        return item;
+      })
     )
   }
 
@@ -63,11 +100,18 @@ export const CartProvider = ({ children }) => {
   }
 
   const cartCount = useMemo(() => {
-    return cartItems.reduce((total, item) => total + item.quantity, 0)
+    return cartItems.reduce((total, item) => {
+      const qty = typeof item.quantity === 'number' && !isNaN(item.quantity) ? item.quantity : 0;
+      return total + qty;
+    }, 0)
   }, [cartItems])
 
   const cartTotal = useMemo(() => {
-    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
+    return cartItems.reduce((total, item) => {
+      const price = typeof item.price === 'number' && !isNaN(item.price) ? item.price : 0;
+      const qty = typeof item.quantity === 'number' && !isNaN(item.quantity) ? item.quantity : 0;
+      return total + price * qty;
+    }, 0)
   }, [cartItems])
 
   return (
@@ -95,3 +139,4 @@ export const useCart = () => {
   }
   return context
 }
+

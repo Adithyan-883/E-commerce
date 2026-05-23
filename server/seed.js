@@ -14,7 +14,7 @@ const products = [
     price: 150,
     oldPrice: 200,
     category: 'snacks',
-    images: ['/images/Banana Chips 1.jpeg', '/images/Banana Chips  2.jpeg', '/images/Banana Chips 3.jpeg'],
+    images: ['/images/Banana Chips 1.webp', '/images/Banana Chips  2.webp', '/images/Banana Chips 3.webp'],
     packs: [
       { label: '250g', save: 50, oldPrice: 200, price: 150 },
       { label: '500g', save: 120, oldPrice: 400, price: 280 },
@@ -30,7 +30,7 @@ const products = [
     price: 150,
     oldPrice: 200,
     category: 'sweets',
-    images: ['/images/Sharkara Varatti.jpeg'],
+    images: ['/images/Sharkara Varatti.webp'],
     packs: [
       { label: '250g', save: 50, oldPrice: 200, price: 150 },
       { label: '500g', save: 120, oldPrice: 400, price: 280 },
@@ -46,7 +46,7 @@ const products = [
     price: 150,
     oldPrice: 200,
     category: 'snacks',
-    images: ['/images/Jackfruit Chips.jpeg'],
+    images: ['/images/Jackfruit Chips.webp'],
     packs: [
       { label: '250g', save: 50, oldPrice: 200, price: 150 },
       { label: '500g', save: 120, oldPrice: 400, price: 280 },
@@ -62,7 +62,7 @@ const products = [
     price: 150,
     oldPrice: 200,
     category: 'snacks',
-    images: ['/images/Spicy Banana Chips.jpeg'],
+    images: ['/images/Spicy Banana Chips.webp'],
     packs: [
       { label: '250g', save: 50, oldPrice: 200, price: 150 },
       { label: '500g', save: 120, oldPrice: 400, price: 280 },
@@ -78,7 +78,7 @@ const products = [
     price: 150,
     oldPrice: 200,
     category: 'snacks',
-    images: ['/images/Tapioca Chips.jpeg'],
+    images: ['/images/Tapioca Chips.webp'],
     packs: [
       { label: '250g', save: 50, oldPrice: 200, price: 150 },
       { label: '500g', save: 120, oldPrice: 400, price: 280 },
@@ -94,7 +94,7 @@ const products = [
     price: 599,
     oldPrice: 1400,
     category: 'combos',
-    images: ['/images/Combo 4.jpeg'],
+    images: ['/images/Combo 4.webp'],
     packs: [
       { label: '120g + 180g + 100g', save: 801, oldPrice: 1400, price: 599 },
       { label: '300g + 400g + 200g', save: 51, oldPrice: 950, price: 899 },

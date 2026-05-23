@@ -5,8 +5,8 @@ export const products = [
     category: 'Snacks',
     price: 150,
     oldPrice: 200,
-    image: '/images/Banana Chips 1.jpeg',
-    images: ['/images/Banana Chips 1.jpeg', '/images/Banana Chips  2.jpeg', '/images/Banana Chips 3.jpeg'],
+    image: '/images/Banana Chips 1.webp',
+    images: ['/images/Banana Chips 1.webp', '/images/Banana Chips  2.webp', '/images/Banana Chips 3.webp'],
     description: 'Classic thin and crispy Kerala banana chips.',
     rating: 4.9,
     packs: [
@@ -20,7 +20,7 @@ export const products = [
     title: 'Sharkara Varatti',
     category: 'Snacks',
     price: 9.50,
-    image: '/images/Sharkara Varatti.jpeg',
+    image: '/images/Sharkara Varatti.webp',
     description: 'Thick cut banana pieces coated in jaggery and ginger.',
     rating: 4.8,
     packs: [
@@ -34,7 +34,7 @@ export const products = [
     title: 'Jackfruit Chips',
     category: 'Snacks',
     price: 10.00,
-    image: '/images/Jackfruit Chips.jpeg',
+    image: '/images/Jackfruit Chips.webp',
     description: 'Crispy and naturally sweet chips made from ripe jackfruit.',
     rating: 4.7,
     packs: [
@@ -48,7 +48,7 @@ export const products = [
     title: 'Spicy Banana Chips',
     category: 'Snacks',
     price: 8.99,
-    image: '/images/Spicy Banana Chips.jpeg',
+    image: '/images/Spicy Banana Chips.webp',
     description: 'Crunchy Kerala banana chips with a touch of chili and turmeric.',
     rating: 4.8,
     packs: [
@@ -62,7 +62,7 @@ export const products = [
     title: 'Crispy Tapioca Chips',
     category: 'Snacks',
     price: 6.5,
-    image: '/images/Tapioca Chips.jpeg',
+    image: '/images/Tapioca Chips.webp',
     description: 'Thinly sliced and perfectly fried kappa (tapioca) chips seasoned with salt.',
     rating: 4.7,
     packs: [
@@ -77,7 +77,7 @@ export const products = [
     category: 'Snacks',
     price: 599,
     oldPrice: 1400,
-    image: '/images/Combo 4.jpeg',
+    image: '/images/Combo 4.webp',
     description: 'A classic Kerala snack trio featuring crispy banana chips, naturally sweet jackfruit chips, and crunchy tapioca chips, all fried in pure coconut oil. Made using traditional methods and simple ingredients, this preservative-free combo delivers a perfect mix of flavors and textures in every bite.',
     rating: 4.7,
     packs: [
@@ -93,7 +93,7 @@ export const categories = [
     id: 'snacks',
     title: 'Snacks',
     description: 'Savory treats made from traditional recipes.',
-    image: '/images/Banana Chips 1.jpeg',
+    image: '/images/Banana Chips 1.webp',
   },
 ]
 

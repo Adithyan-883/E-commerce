@@ -5,12 +5,13 @@ import * as z from 'zod'
 import { useCart } from '../context/CartContext'
 
 const checkoutSchema = z.object({
-  fullName: z.string().min(2, "Full name is required"),
-  email: z.string().email("Invalid email address"),
-  address: z.string().min(5, "Address must be at least 5 characters"),
-  city: z.string().min(2, "City is required"),
-  postalCode: z.string().min(4, "Postal code is required"),
-  country: z.string().min(2, "Country is required"),
+  fullName: z.string().min(1, "Full name is required").min(2, "Full name must be at least 2 characters"),
+  email: z.string().min(1, "Email is required").email("Invalid email address"),
+  phone: z.string().min(1, "Phone number is required").regex(/^[6-9]\d{9}$/, "Please enter a valid 10-digit Indian phone number starting with 6-9"),
+  address: z.string().min(1, "Address is required").min(5, "Address must be at least 5 characters"),
+  city: z.string().min(1, "City is required").min(2, "City must be at least 2 characters"),
+  postalCode: z.string().min(1, "Postal code is required").regex(/^\d{6}$/, "Please enter a valid 6-digit Indian postal code"),
+  country: z.string().min(1, "Country is required").min(2, "Country must be at least 2 characters"),
 })
 
 const Checkout = () => {
@@ -21,6 +22,11 @@ const Checkout = () => {
   
   const itemsToCheckout = buyNowItem ? [{ ...buyNowItem, quantity: 1 }] : cartItems
   const subtotal = buyNowItem ? buyNowItem.price : cartTotal
+
+  // Define calculations that were missing from Checkout page
+  const shipping = subtotal >= 299 ? 0 : 49;
+  const discount = subtotal >= 999 ? subtotal * 0.1 : 0;
+  const total = subtotal > 0 ? subtotal - discount + shipping : 0;
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(checkoutSchema)
@@ -55,6 +61,13 @@ const Checkout = () => {
               {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
             </label>
           </div>
+          
+          <label htmlFor="phone" className="block">
+            <span className="text-sm font-medium text-[#475569]">Phone number</span>
+            <input id="phone" type="tel" {...register('phone')} className={`mt-3 w-full rounded-3xl border bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 ${errors.phone ? 'border-red-500' : 'border-[#22c622]/20 focus:border-[#22c622]'}`} placeholder="e.g. 9876543210" />
+            {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone.message}</p>}
+          </label>
+
           <label htmlFor="address" className="block">
             <span className="text-sm font-medium text-[#475569]">Address</span>
             <input id="address" {...register('address')} className={`mt-3 w-full rounded-3xl border bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 ${errors.address ? 'border-red-500' : 'border-[#22c622]/20 focus:border-[#22c622]'}`} />

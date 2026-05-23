@@ -15,16 +15,17 @@ class AuthService {
       }
       return response.data;
     } catch (error) {
-      console.warn('Backend offline, using mock login');
-      // Mock login if backend is down
-      if (email && password) {
-        const mockData = {
-          _id: '1', name: 'Demo User', role: 'admin', email: email, isAdmin: true
-        };
-        localStorage.setItem('user', JSON.stringify(mockData));
-        return mockData;
+      if (import.meta.env.MODE === 'development') {
+        console.warn('Backend offline, using mock login');
+        if (email && password) {
+          const mockData = {
+            _id: '1', name: 'Demo User', role: 'admin', email: email, isAdmin: true
+          };
+          localStorage.setItem('user', JSON.stringify(mockData));
+          return mockData;
+        }
       }
-      throw new Error(error.response?.data?.message || 'Invalid email or password');
+      throw error;
     }
   }
 
@@ -40,12 +41,15 @@ class AuthService {
       }
       return response.data;
     } catch (error) {
-      console.warn('Backend offline, using mock register');
-      const mockData = {
-        _id: '1', name: userData.name, email: userData.email, isAdmin: false
-      };
-      localStorage.setItem('user', JSON.stringify(mockData));
-      return mockData;
+      if (import.meta.env.MODE === 'development') {
+        console.warn('Backend offline, using mock register');
+        const mockData = {
+          _id: '1', name: userData.name, email: userData.email, isAdmin: false
+        };
+        localStorage.setItem('user', JSON.stringify(mockData));
+        return mockData;
+      }
+      throw error;
     }
   }
 
@@ -65,8 +69,13 @@ class AuthService {
    * Get current user from local storage
    */
   getCurrentUser() {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    try {
+      const user = localStorage.getItem('user');
+      return user ? JSON.parse(user) : null;
+    } catch (error) {
+      console.error('Error parsing user from localStorage', error);
+      return null;
+    }
   }
 }
 

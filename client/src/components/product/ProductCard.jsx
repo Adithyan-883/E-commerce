@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { toast } from 'react-hot-toast'
 import { useCart } from '../../context/CartContext'
 
 const ProductCard = ({ product }) => {
@@ -10,7 +9,6 @@ const ProductCard = ({ product }) => {
     e.preventDefault()
     e.stopPropagation()
     addToCart(product, 1)
-    toast.success(`${product.title} added to cart!`)
   }
   return (
     <motion.article

@@ -20,8 +20,11 @@ class ProductService {
       const response = await api.get('/products');
       return response.data.map(normalizeProduct);
     } catch (error) {
-      console.warn('Backend MongoDB is not running yet! Falling back to dummy data so the UI continues to work.');
-      return dummyProducts.map(normalizeProduct);
+      if (import.meta.env.MODE === 'development') {
+        console.warn('Backend MongoDB is not running yet! Falling back to dummy data so the UI continues to work.');
+        return dummyProducts.map(normalizeProduct);
+      }
+      throw error;
     }
   }
 
@@ -35,10 +38,13 @@ class ProductService {
       const response = await api.get(`/products/${id}`);
       return normalizeProduct(response.data);
     } catch (error) {
-      console.warn(`Backend MongoDB is not running yet! Falling back to dummy product for ID: ${id}`);
-      const product = dummyProducts.find(p => p.id === id);
-      if (!product) throw new Error('Product not found');
-      return normalizeProduct(product);
+      if (import.meta.env.MODE === 'development') {
+        console.warn(`Backend MongoDB is not running yet! Falling back to dummy product for ID: ${id}`);
+        const product = dummyProducts.find(p => p.id === id);
+        if (!product) throw new Error('Product not found');
+        return normalizeProduct(product);
+      }
+      throw error;
     }
   }
 
@@ -53,14 +59,18 @@ class ProductService {
       const response = await api.get(`/products/related?category=${category}&exclude=${excludeId}`);
       return response.data.map(normalizeProduct);
     } catch (error) {
-      console.warn('Backend MongoDB is not running yet! Falling back to dummy related products.');
-      return dummyProducts
-        .filter(item => item.category === category && item.id !== excludeId)
-        .slice(0, 4)
-        .map(normalizeProduct);
+      if (import.meta.env.MODE === 'development') {
+        console.warn('Backend MongoDB is not running yet! Falling back to dummy related products.');
+        return dummyProducts
+          .filter(item => item.category === category && item.id !== excludeId)
+          .slice(0, 4)
+          .map(normalizeProduct);
+      }
+      throw error;
     }
   }
 }
+
 
 export const productService = new ProductService();
 

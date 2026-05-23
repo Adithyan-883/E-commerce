@@ -39,6 +39,16 @@ const addOrderItems = async (req, res) => {
   }
 };
 
+// @desc    Get all orders
+// @route   GET /api/orders
+// @access  Private/Admin
+const getOrders = async (req, res) => {
+  const orders = await Order.find({}).populate('user', 'id name');
+  res.json(orders);
+};
+
 module.exports = {
   addOrderItems,
+  getOrders,
 };
+
