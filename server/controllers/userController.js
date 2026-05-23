@@ -84,13 +84,25 @@ const registerUser = async (req, res, next) => {
 const logoutUser = (req, res) => {
   res.cookie('jwt', '', {
     httpOnly: true,
+    secure: process.env.NODE_ENV !== 'development',
+    sameSite: 'strict',
     expires: new Date(0),
   });
   res.status(200).json({ message: 'Logged out successfully' });
+};
+
+const getUserProfile = (req, res) => {
+  res.json({
+    _id: req.user._id,
+    name: req.user.name,
+    email: req.user.email,
+    isAdmin: req.user.isAdmin,
+  });
 };
 
 module.exports = {
   authUser,
   registerUser,
   logoutUser,
+  getUserProfile,
 };

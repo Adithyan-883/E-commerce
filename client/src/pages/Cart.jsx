@@ -27,7 +27,7 @@ const Cart = () => {
         <div className="grid gap-8 lg:grid-cols-[1.6fr,_0.9fr]">
           <div className="space-y-5">
             {cartItems.map((item) => (
-              <CartItem key={item.id} item={item} onIncrement={() => incrementQuantity(item.id)} onDecrement={() => decrementQuantity(item.id)} onRemove={() => removeFromCart(item.id)} />
+              <CartItem key={item.cartKey} item={item} onIncrement={() => incrementQuantity(item.cartKey)} onDecrement={() => decrementQuantity(item.cartKey)} onRemove={() => removeFromCart(item.cartKey)} />
             ))}
           </div>
 

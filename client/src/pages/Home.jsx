@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import HeroSection from '../components/home/HeroSection'
 import ProductCard from '../components/product/ProductCard'

@@ -8,7 +8,11 @@ const ProductCard = ({ product }) => {
   const handleAddToCart = (e) => {
     e.preventDefault()
     e.stopPropagation()
-    addToCart(product, 1)
+    const defaultPack = product.packs?.[0]
+    const itemToAdd = defaultPack
+      ? { ...product, packLabel: defaultPack.label, price: defaultPack.price }
+      : product
+    addToCart(itemToAdd, 1)
   }
   return (
     <motion.article

@@ -8,6 +8,7 @@
           </div>
           <div>
             <h3 className="text-lg font-semibold text-[#1E3A1A]">{item.title}</h3>
+            {item.packLabel && <p className="text-sm font-medium text-[#1E3A1A]">{item.packLabel}</p>}
             <p className="text-sm text-[#475569]">{item.category}</p>
             <p className="mt-3 text-base font-bold text-[#22c622]">₹{(item.price * item.quantity).toFixed(2)}</p>
           </div>

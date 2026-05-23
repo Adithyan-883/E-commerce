@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
+import { useAuth } from '../context/AuthContext'
 
 const Admin = () => {
+  const navigate = useNavigate()
+  const { logout } = useAuth()
   const [activeTab, setActiveTab] = useState('dashboard')
   const [products, setProducts] = useState([])
   const [orders, setOrders] = useState([])
@@ -32,12 +36,23 @@ const Admin = () => {
 
   const totalRevenue = orders.reduce((acc, o) => acc + (o.totalPrice || 0), 0)
 
+  const handleLogout = async () => {
+    try {
+      await logout()
+    } finally {
+      navigate('/admin/login', { replace: true })
+    }
+  }
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
       <div className="grid gap-8 xl:grid-cols-[280px,_1fr]">
         <aside className="rounded-[2rem] border border-[#22c622]/10 bg-white p-6 shadow-xl">
           <h2 className="text-xl font-semibold text-[#1E3A1A]">Admin dashboard</h2>
           <p className="mt-2 text-sm text-[#475569]">Manage products and orders with a premium branded admin view.</p>
+          <button type="button" onClick={handleLogout} className="mt-5 rounded-full border border-[#22c622]/20 px-4 py-2 text-sm font-semibold text-[#1E3A1A] transition hover:bg-[#22c622]/10">
+            Sign out
+          </button>
           <div className="mt-8 space-y-3">
             {['dashboard', 'products', 'orders'].map((tab) => (
               <button
@@ -159,7 +174,7 @@ const Admin = () => {
                       ) : orders.map((order) => (
                         <tr key={order._id} className="hover:bg-[#22c622]/5 transition duration-200">
                           <td className="px-6 py-5 font-mono text-xs text-[#1E3A1A]">{order._id}</td>
-                          <td className="px-6 py-5">{order.user?.name || '—'}</td>
+                          <td className="px-6 py-5">{order.user?.name || order.guestName || '-'}</td>
                           <td className="px-6 py-5">₹{Number(order.totalPrice).toFixed(2)}</td>
                           <td className="px-6 py-5">
                             <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${order.isPaid ? 'bg-[#22c622]/20 text-[#1E3A1A]' : 'bg-red-100 text-red-700'}`}>

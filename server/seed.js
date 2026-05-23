@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const Product = require('./models/Product');
+const User = require('./models/User');
 const connectDB = require('./config/db');
 
 dotenv.config();
@@ -110,6 +111,20 @@ const importData = async () => {
   try {
     await Product.deleteMany();
     await Product.insertMany(products);
+
+    if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
+      const existingAdmin = await User.findOne({ email: process.env.ADMIN_EMAIL.toLowerCase() });
+
+      if (!existingAdmin) {
+        await User.create({
+          name: process.env.ADMIN_NAME || 'Store Admin',
+          email: process.env.ADMIN_EMAIL,
+          password: process.env.ADMIN_PASSWORD,
+          isAdmin: true,
+        });
+      }
+    }
+
     console.log('Data Imported!');
     process.exit();
   } catch (error) {

@@ -3,11 +3,24 @@ import { toast } from 'react-hot-toast'
 
 const CartContext = createContext(undefined)
 
+const toCartItem = (product) => {
+  const defaultPack = !product.packLabel && product.packs?.length > 0 ? product.packs[0] : null
+  const packLabel = product.packLabel || defaultPack?.label || ''
+  const price = defaultPack?.price ?? product.price
+
+  return {
+    ...product,
+    packLabel,
+    price,
+    cartKey: `${product.id}:${packLabel || 'standard'}`,
+  }
+}
+
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState(() => {
     try {
       const savedCart = localStorage.getItem('cart')
-      return savedCart ? JSON.parse(savedCart) : []
+      return savedCart ? JSON.parse(savedCart).map(toCartItem) : []
     } catch (error) {
       console.error('Error loading cart from localStorage', error)
       return []
@@ -23,75 +36,76 @@ export const CartProvider = ({ children }) => {
   }, [cartItems])
 
   const addToCart = (product, quantity = 1) => {
-    // Validate quantity is valid and positive
-    if (typeof quantity !== 'number' || isNaN(quantity) || quantity <= 0) {
-      toast.error('Invalid quantity value.');
-      return;
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+      toast.error('Invalid quantity value.')
+      return
     }
 
+    const itemToAdd = toCartItem(product)
+
     setCartItems((currentItems) => {
-      const existingItem = currentItems.find((item) => item.id === product.id)
-      const stock = product.stock !== undefined ? Number(product.stock) : Infinity
-      const currentQty = existingItem ? existingItem.quantity : 0
+      const existingItem = currentItems.find((item) => item.cartKey === itemToAdd.cartKey)
+      const stock = itemToAdd.stock !== undefined ? Number(itemToAdd.stock) : Infinity
+      const totalProductQty = currentItems
+        .filter((item) => item.id === itemToAdd.id)
+        .reduce((total, item) => total + item.quantity, 0)
 
       if (stock <= 0) {
-        toast.error(`${product.title} is currently out of stock.`);
-        return currentItems;
+        toast.error(`${itemToAdd.title} is currently out of stock.`)
+        return currentItems
       }
 
-      if (currentQty + quantity > stock) {
-        toast.error(`Cannot add more. Only ${stock} items available in stock.`);
-        
-        // Cap the item quantity at the maximum available stock
-        const cappedQty = stock;
-        if (existingItem) {
-          return currentItems.map((item) =>
-            item.id === product.id ? { ...item, quantity: cappedQty } : item
-          )
-        }
-        return [...currentItems, { ...product, quantity: cappedQty }]
+      if (totalProductQty + quantity > stock) {
+        toast.error(`Cannot add more. Only ${stock} items are available in stock.`)
+        return currentItems
       }
 
-      toast.success(`${product.title} added to cart!`);
+      toast.success(`${itemToAdd.title} added to cart!`)
       if (existingItem) {
         return currentItems.map((item) =>
-          item.id === product.id ? { ...item, quantity: currentQty + quantity } : item
+          item.cartKey === itemToAdd.cartKey
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
         )
       }
-      return [...currentItems, { ...product, quantity }]
+
+      return [...currentItems, { ...itemToAdd, quantity }]
     })
   }
 
-  const removeFromCart = (id) => {
-    setCartItems((currentItems) => currentItems.filter((item) => item.id !== id))
-    toast.success('Item removed from cart.');
+  const removeFromCart = (cartKey) => {
+    setCartItems((currentItems) => currentItems.filter((item) => item.cartKey !== cartKey))
+    toast.success('Item removed from cart.')
   }
 
-  const incrementQuantity = (id) => {
-    setCartItems((currentItems) =>
-      currentItems.map((item) => {
-        if (item.id === id) {
-          const stock = item.stock !== undefined ? Number(item.stock) : Infinity
-          if (item.quantity >= stock) {
-            toast.error(`Cannot increment. Only ${stock} items available in stock.`);
-            return item;
-          }
-          return { ...item, quantity: item.quantity + 1 }
-        }
-        return item
-      })
-    )
+  const incrementQuantity = (cartKey) => {
+    setCartItems((currentItems) => {
+      const selectedItem = currentItems.find((item) => item.cartKey === cartKey)
+      if (!selectedItem) return currentItems
+
+      const stock = selectedItem.stock !== undefined ? Number(selectedItem.stock) : Infinity
+      const totalProductQty = currentItems
+        .filter((item) => item.id === selectedItem.id)
+        .reduce((total, item) => total + item.quantity, 0)
+
+      if (totalProductQty >= stock) {
+        toast.error(`Cannot increment. Only ${stock} items are available in stock.`)
+        return currentItems
+      }
+
+      return currentItems.map((item) =>
+        item.cartKey === cartKey ? { ...item, quantity: item.quantity + 1 } : item
+      )
+    })
   }
 
-  const decrementQuantity = (id) => {
+  const decrementQuantity = (cartKey) => {
     setCartItems((currentItems) =>
-      currentItems.map((item) => {
-        if (item.id === id) {
-          // Quantities cannot go below 1
-          return { ...item, quantity: Math.max(1, item.quantity - 1) }
-        }
-        return item;
-      })
+      currentItems.map((item) =>
+        item.cartKey === cartKey
+          ? { ...item, quantity: Math.max(1, item.quantity - 1) }
+          : item
+      )
     )
   }
 
@@ -100,18 +114,11 @@ export const CartProvider = ({ children }) => {
   }
 
   const cartCount = useMemo(() => {
-    return cartItems.reduce((total, item) => {
-      const qty = typeof item.quantity === 'number' && !isNaN(item.quantity) ? item.quantity : 0;
-      return total + qty;
-    }, 0)
+    return cartItems.reduce((total, item) => total + item.quantity, 0)
   }, [cartItems])
 
   const cartTotal = useMemo(() => {
-    return cartItems.reduce((total, item) => {
-      const price = typeof item.price === 'number' && !isNaN(item.price) ? item.price : 0;
-      const qty = typeof item.quantity === 'number' && !isNaN(item.quantity) ? item.quantity : 0;
-      return total + price * qty;
-    }, 0)
+    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0)
   }, [cartItems])
 
   return (
@@ -139,4 +146,3 @@ export const useCart = () => {
   }
   return context
 }
-

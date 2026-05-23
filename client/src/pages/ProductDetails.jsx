@@ -1,7 +1,6 @@
 import { useMemo, useState, useEffect } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { FaChevronLeft, FaChevronRight, FaCheckCircle, FaShoppingBag, FaPercentage, FaShippingFast } from 'react-icons/fa'
-import { toast } from 'react-hot-toast'
+import { FaChevronLeft, FaChevronRight, FaCheckCircle, FaShoppingBag, FaPercentage } from 'react-icons/fa'
 import ProductCard from '../components/product/ProductCard'
 import { useCart } from '../context/CartContext'
 import { productService } from '../services/productService'
@@ -42,7 +41,10 @@ const ProductDetails = () => {
   }, [id])
 
   useEffect(() => {
-    if (product) setCurrentImgIndex(0)
+    if (product) {
+      setCurrentImgIndex(0)
+      setSelectedPack(0)
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [product, id])
 
@@ -52,10 +54,11 @@ const ProductDetails = () => {
 
   const packs = product?.packs || []
   const hasPacks = packs.length > 0
+  const activePack = packs[selectedPack] || packs[0]
 
-  const displayPrice = hasPacks ? packs[selectedPack].price : product?.price
-  const displayOldPrice = hasPacks ? packs[selectedPack].oldPrice : product?.oldPrice
-  const displaySave = hasPacks ? packs[selectedPack].save : (displayOldPrice ? displayOldPrice - displayPrice : 0)
+  const displayPrice = hasPacks ? activePack.price : product?.price
+  const displayOldPrice = hasPacks ? activePack.oldPrice : product?.oldPrice
+  const displaySave = hasPacks ? activePack.save : (displayOldPrice ? displayOldPrice - displayPrice : 0)
   const displaySavePercent = displayOldPrice ? Math.round((displaySave / displayOldPrice) * 100) : 0
 
   const nextImage = () => {
@@ -69,7 +72,7 @@ const ProductDetails = () => {
   const handleAddToCart = () => {
     if (product) {
       const itemToAdd = hasPacks 
-        ? { ...product, price: packs[selectedPack].price, title: `${product.title} - ${packs[selectedPack].label}` }
+        ? { ...product, packLabel: activePack.label, price: activePack.price }
         : { ...product }
       addToCart(itemToAdd, 1)
     }
@@ -78,7 +81,7 @@ const ProductDetails = () => {
   const handleBuyNowClick = () => {
     if (product) {
       const itemToAdd = hasPacks 
-        ? { ...product, price: packs[selectedPack].price, title: `${product.title} - ${packs[selectedPack].label}` }
+        ? { ...product, packLabel: activePack.label, price: activePack.price }
         : { ...product }
       navigate('/checkout', { state: { buyNowItem: itemToAdd } })
     }

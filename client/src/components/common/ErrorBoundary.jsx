@@ -22,7 +22,7 @@ class ErrorBoundary extends React.Component {
       return (
         <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4 text-center">
           <h1 className="mb-4 text-4xl font-bold text-red-600">Oops! Something went wrong.</h1>
-          <p className="mb-8 text-gray-600">We're sorry, but an unexpected error occurred.</p>
+          <p className="mb-8 text-gray-600">We are sorry, but an unexpected error occurred.</p>
           <button
             onClick={() => window.location.reload()}
             className="rounded-full bg-[#22c622] px-6 py-3 font-semibold text-white transition hover:bg-[#FACC15] hover:text-[#1E3A1A]"

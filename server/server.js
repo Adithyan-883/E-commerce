@@ -10,12 +10,20 @@ const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET must be configured before starting the server.');
+}
+
 connectDB();
 
 const app = express();
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 app.use(cors({
-  origin: 'http://localhost:5173', // Vite default port
+  origin: allowedOrigins,
   credentials: true, // Allow cookies
 }));
 app.use(express.json());

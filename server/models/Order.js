@@ -11,6 +11,7 @@ const orderSchema = new mongoose.Schema({
   orderItems: [
     {
       title: { type: String, required: true },
+      packLabel: { type: String, default: '' },
       qty: { type: Number, required: true },
       image: { type: String, required: true },
       price: { type: Number, required: true },
@@ -23,6 +24,7 @@ const orderSchema = new mongoose.Schema({
   ],
   shippingAddress: {
     fullName: { type: String, required: true },
+    phone: { type: String, required: true },
     address: { type: String, required: true },
     city: { type: String, required: true },
     postalCode: { type: String, required: true },
@@ -31,7 +33,7 @@ const orderSchema = new mongoose.Schema({
   paymentMethod: {
     type: String,
     required: true,
-    default: 'Stripe'
+    default: 'Cash on Delivery'
   },
   paymentResult: {
     id: String,
