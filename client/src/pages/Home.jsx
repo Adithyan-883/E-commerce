@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion'
-import HeroSection from '../components/HeroSection'
-import ProductCard from '../components/ProductCard'
-import TestimonialCard from '../components/TestimonialCard'
-import { products, testimonials } from '../data/dummyData'
+import { Link } from 'react-router-dom'
+import HeroSection from '../components/home/HeroSection'
+import ProductCard from '../components/product/ProductCard'
+import TestimonialCard from '../components/home/TestimonialCard'
+import { products, testimonials } from '../constants/dummyData'
 
 const Home = () => {
   const featuredProducts = products.slice(0, 4)
@@ -19,9 +20,9 @@ const Home = () => {
               From banana chips to spicy mixtures, explore premium Kerala snacks made to satisfy every craving.
             </p>
           </div>
-          <a href="/products" className="inline-flex items-center justify-center rounded-full bg-[#22c622] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#22c622]/10 transition duration-300 hover:bg-[#FACC15] hover:text-[#1E3A1A]">
+          <Link to="/products" className="inline-flex items-center justify-center rounded-full bg-[#22c622] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#22c622]/10 transition duration-300 hover:bg-[#FACC15] hover:text-[#1E3A1A]">
             View all products
-          </a>
+          </Link>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2 xl:grid-cols-4">

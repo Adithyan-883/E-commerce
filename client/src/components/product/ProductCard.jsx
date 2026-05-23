@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { toast } from 'react-hot-toast'
-import { useCart } from '../context/CartContext'
+import { useCart } from '../../context/CartContext'
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart()

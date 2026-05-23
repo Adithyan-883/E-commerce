@@ -2,8 +2,8 @@ import { useMemo, useState, useEffect } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { FaChevronLeft, FaChevronRight, FaCheckCircle, FaShoppingBag, FaPercentage, FaShippingFast } from 'react-icons/fa'
 import { toast } from 'react-hot-toast'
-import { products } from '../data/dummyData'
-import ProductCard from '../components/ProductCard'
+import { products } from '../constants/dummyData'
+import ProductCard from '../components/product/ProductCard'
 import { useCart } from '../context/CartContext'
 
 const ProductDetails = () => {

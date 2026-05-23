@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import { products } from '../data/dummyData'
-import ProductCard from '../components/ProductCard'
+import { products } from '../constants/dummyData'
+import ProductCard from '../components/product/ProductCard'
 
 const Products = () => {
   const [search, setSearch] = useState('')

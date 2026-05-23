@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import CartItem from '../components/CartItem'
+import CartItem from '../components/cart/CartItem'
 import { useCart } from '../context/CartContext'
 
 const Cart = () => {

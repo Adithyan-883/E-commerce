@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 
 const Checkout = () => {
   const { cartItems, cartTotal } = useCart()
   const location = useLocation()
+  const navigate = useNavigate()
   const buyNowItem = location.state?.buyNowItem
   
   const itemsToCheckout = buyNowItem ? [{ ...buyNowItem, quantity: 1 }] : cartItems
@@ -20,6 +21,15 @@ const Checkout = () => {
     setFormValue({ ...formValue, [event.target.name]: event.target.value })
   }
 
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (!formValue.fullName || !formValue.email || !formValue.address || !formValue.city || !formValue.postalCode || !formValue.country) {
+      // In a real app, toast an error here
+      return;
+    }
+    navigate('/payment', { state: { total, isBuyNow: !!buyNowItem } })
+  }
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
       <div className="mb-10">
@@ -28,38 +38,38 @@ const Checkout = () => {
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[1.4fr,_0.9fr]">
-        <form className="space-y-6 rounded-[2rem] border border-[#22c622]/10 bg-white p-8 shadow-xl sm:p-10">
+        <form id="checkout-form" onSubmit={handleSubmit} className="space-y-6 rounded-[2rem] border border-[#22c622]/10 bg-white p-8 shadow-xl sm:p-10">
           <div>
             <h2 className="text-2xl font-semibold text-[#1E3A1A]">Shipping details</h2>
             <p className="mt-3 text-sm leading-7 text-[#475569]">Enter your delivery address and contact information.</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2">
-            <label className="block">
+            <label htmlFor="fullName" className="block">
               <span className="text-sm font-medium text-[#475569]">Full name</span>
-              <input name="fullName" value={formValue.fullName} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
+              <input id="fullName" name="fullName" required value={formValue.fullName} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
             </label>
-            <label className="block">
+            <label htmlFor="email" className="block">
               <span className="text-sm font-medium text-[#475569]">Email address</span>
-              <input name="email" type="email" value={formValue.email} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
+              <input id="email" name="email" type="email" required value={formValue.email} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
             </label>
           </div>
-          <label className="block">
+          <label htmlFor="address" className="block">
             <span className="text-sm font-medium text-[#475569]">Address</span>
-            <input name="address" value={formValue.address} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
+            <input id="address" name="address" required value={formValue.address} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
           </label>
           <div className="grid gap-6 sm:grid-cols-2">
-            <label className="block">
+            <label htmlFor="city" className="block">
               <span className="text-sm font-medium text-[#475569]">City</span>
-              <input name="city" value={formValue.city} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
+              <input id="city" name="city" required value={formValue.city} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
             </label>
-            <label className="block">
+            <label htmlFor="postalCode" className="block">
               <span className="text-sm font-medium text-[#475569]">Postal code</span>
-              <input name="postalCode" value={formValue.postalCode} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
+              <input id="postalCode" name="postalCode" required value={formValue.postalCode} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
             </label>
           </div>
-          <label className="block">
+          <label htmlFor="country" className="block">
             <span className="text-sm font-medium text-[#475569]">Country</span>
-            <input name="country" value={formValue.country} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
+            <input id="country" name="country" required value={formValue.country} onChange={handleChange} className="mt-3 w-full rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 px-4 py-4 text-sm text-[#1E3A1A] outline-none transition duration-300 focus:border-[#22c622]" />
           </label>
         </form>
 
@@ -95,9 +105,9 @@ const Checkout = () => {
             <div className="mt-6 rounded-3xl border border-[#22c622]/20 bg-[#FACC15]/10 p-5 text-sm text-[#1E3A1A]">Credit card, UPI, and net banking support available soon.</div>
           </div>
 
-          <Link to="/payment" state={{ total, isBuyNow: !!buyNowItem }} className="inline-flex w-full items-center justify-center rounded-full bg-[#22c622] px-6 py-4 text-sm font-semibold text-white transition duration-300 hover:bg-[#FACC15] hover:text-[#1E3A1A]">
+          <button type="submit" form="checkout-form" className="inline-flex w-full items-center justify-center rounded-full bg-[#22c622] px-6 py-4 text-sm font-semibold text-white transition duration-300 hover:bg-[#FACC15] hover:text-[#1E3A1A]">
             Place order
-          </Link>
+          </button>
         </aside>
       </div>
     </section>

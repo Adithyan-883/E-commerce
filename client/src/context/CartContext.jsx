@@ -1,9 +1,25 @@
-import { createContext, useContext, useState, useMemo } from 'react'
+import { createContext, useContext, useState, useMemo, useEffect } from 'react'
 
 const CartContext = createContext(undefined)
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([])
+  const [cartItems, setCartItems] = useState(() => {
+    try {
+      const savedCart = localStorage.getItem('cart')
+      return savedCart ? JSON.parse(savedCart) : []
+    } catch (error) {
+      console.error('Error loading cart from localStorage', error)
+      return []
+    }
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cart', JSON.stringify(cartItems))
+    } catch (error) {
+      console.error('Error saving cart to localStorage', error)
+    }
+  }, [cartItems])
 
   const addToCart = (product, quantity = 1) => {
     setCartItems((currentItems) => {
