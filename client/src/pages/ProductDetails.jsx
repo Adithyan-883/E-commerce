@@ -2,19 +2,53 @@ import { useMemo, useState, useEffect } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { FaChevronLeft, FaChevronRight, FaCheckCircle, FaShoppingBag, FaPercentage, FaShippingFast } from 'react-icons/fa'
 import { toast } from 'react-hot-toast'
-import { products } from '../constants/dummyData'
 import ProductCard from '../components/product/ProductCard'
 import { useCart } from '../context/CartContext'
+import { productService } from '../services/productService'
 
 const ProductDetails = () => {
   const { addToCart } = useCart()
   const { id } = useParams()
   const navigate = useNavigate()
-  const product = products.find((item) => item.id === id)
   
-  const allImages = product?.images || (product ? [product.image] : [])
+  const [product, setProduct] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [relatedProducts, setRelatedProducts] = useState([])
+  
   const [currentImgIndex, setCurrentImgIndex] = useState(0)
   const [selectedPack, setSelectedPack] = useState(0)
+
+  useEffect(() => {
+    const fetchProductDetails = async () => {
+      try {
+        setLoading(true)
+        const data = await productService.getProductById(id)
+        setProduct(data)
+        
+        // Fetch related products
+        const related = await productService.getRelatedProducts(data.category, data.id)
+        setRelatedProducts(related.slice(0, 3))
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    if (id) {
+      fetchProductDetails()
+    }
+  }, [id])
+
+  useEffect(() => {
+    if (product) setCurrentImgIndex(0)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [product, id])
+
+  const allImages = useMemo(() => {
+    return product?.images || (product ? [product.image] : [])
+  }, [product])
 
   const packs = product?.packs || []
   const hasPacks = packs.length > 0
@@ -23,11 +57,6 @@ const ProductDetails = () => {
   const displayOldPrice = hasPacks ? packs[selectedPack].oldPrice : product?.oldPrice
   const displaySave = hasPacks ? packs[selectedPack].save : (displayOldPrice ? displayOldPrice - displayPrice : 0)
   const displaySavePercent = displayOldPrice ? Math.round((displaySave / displayOldPrice) * 100) : 0
-
-  useEffect(() => {
-    if (product) setCurrentImgIndex(0)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [product, id])
 
   const nextImage = () => {
     setCurrentImgIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1))
@@ -56,16 +85,20 @@ const ProductDetails = () => {
     }
   }
 
-  const relatedProducts = useMemo(() => {
-    if (!product) return []
-    return products.filter((item) => item.category === product.category && item.id !== product.id).slice(0, 3)
-  }, [product])
-
-  if (!product) {
+  if (loading) {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-7xl flex-col items-center justify-center px-4 py-20 text-center sm:px-6 lg:px-8">
-        <p className="text-sm uppercase tracking-[0.25em] text-[#22c622]">Not found</p>
-        <h1 className="mt-4 text-4xl font-semibold text-[#1E3A1A]">Product not available</h1>
+        <p className="text-sm uppercase tracking-[0.25em] text-[#22c622]">Loading</p>
+        <h1 className="mt-4 text-4xl font-semibold text-[#1E3A1A]">Loading product details...</h1>
+      </div>
+    )
+  }
+
+  if (error || !product) {
+    return (
+      <div className="mx-auto flex min-h-[60vh] max-w-7xl flex-col items-center justify-center px-4 py-20 text-center sm:px-6 lg:px-8">
+        <p className="text-sm uppercase tracking-[0.25em] text-red-600">Error</p>
+        <h1 className="mt-4 text-4xl font-semibold text-[#1E3A1A]">{error || 'Product not found'}</h1>
         <Link to="/products" className="mt-8 inline-flex rounded-full bg-[#22c622] px-6 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-[#FACC15] hover:text-[#1E3A1A]">
           Back to products
         </Link>

@@ -1,6 +1,15 @@
 import api from '../api/axios';
 import { products as dummyProducts } from '../constants/dummyData';
 
+const normalizeProduct = (product) => {
+  if (!product) return null;
+  return {
+    ...product,
+    id: product.id || product._id, // Support both id and _id
+    image: product.image || (product.images && product.images[0]) || '', // Support image fallback
+  };
+};
+
 class ProductService {
   /**
    * Fetch all products
@@ -9,10 +18,10 @@ class ProductService {
   async getAllProducts() {
     try {
       const response = await api.get('/products');
-      return response.data;
+      return response.data.map(normalizeProduct);
     } catch (error) {
       console.warn('Backend MongoDB is not running yet! Falling back to dummy data so the UI continues to work.');
-      return dummyProducts;
+      return dummyProducts.map(normalizeProduct);
     }
   }
 
@@ -24,12 +33,12 @@ class ProductService {
   async getProductById(id) {
     try {
       const response = await api.get(`/products/${id}`);
-      return response.data;
+      return normalizeProduct(response.data);
     } catch (error) {
       console.warn(`Backend MongoDB is not running yet! Falling back to dummy product for ID: ${id}`);
       const product = dummyProducts.find(p => p.id === id);
       if (!product) throw new Error('Product not found');
-      return product;
+      return normalizeProduct(product);
     }
   }
 
@@ -42,14 +51,16 @@ class ProductService {
   async getRelatedProducts(category, excludeId) {
     try {
       const response = await api.get(`/products/related?category=${category}&exclude=${excludeId}`);
-      return response.data;
+      return response.data.map(normalizeProduct);
     } catch (error) {
       console.warn('Backend MongoDB is not running yet! Falling back to dummy related products.');
       return dummyProducts
         .filter(item => item.category === category && item.id !== excludeId)
-        .slice(0, 4);
+        .slice(0, 4)
+        .map(normalizeProduct);
     }
   }
 }
 
 export const productService = new ProductService();
+

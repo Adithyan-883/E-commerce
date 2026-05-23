@@ -1,15 +1,33 @@
-import { useMemo, useState } from 'react'
-import { products } from '../constants/dummyData'
+import { useMemo, useState, useEffect } from 'react'
 import ProductCard from '../components/product/ProductCard'
+import { productService } from '../services/productService'
+import { SkeletonLoader } from '../components/common/SkeletonLoader'
 
 const Products = () => {
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await productService.getAllProducts();
+        setProducts(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       return product.title.toLowerCase().includes(search.toLowerCase()) || product.description.toLowerCase().includes(search.toLowerCase())
     })
-  }, [search])
+  }, [products, search])
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
@@ -32,7 +50,15 @@ const Products = () => {
         </div>
       </div>
 
-      {filteredProducts.length === 0 ? (
+      {loading ? (
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {Array(6).fill(0).map((_, i) => <SkeletonLoader key={i} />)}
+        </div>
+      ) : error ? (
+        <div className="rounded-[2rem] bg-red-50 p-12 text-center text-red-600">
+          {error}
+        </div>
+      ) : filteredProducts.length === 0 ? (
         <div className="rounded-[2rem] border border-[#22c622]/10 bg-white p-12 text-center shadow-lg">
           <p className="text-xl font-semibold text-[#1E3A1A]">No products matched your search.</p>
           <p className="mt-3 text-sm text-[#475569]">Try adjusting your search.</p>
