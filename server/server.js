@@ -1,5 +1,6 @@
+require('dotenv').config(); // MUST be first — loads MONGO_URI, JWT_SECRET before anything else
+
 const express = require('express');
-const dotenv = require('dotenv');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
@@ -8,8 +9,6 @@ const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes');
 const orderRoutes = require('./routes/orderRoutes');
-
-dotenv.config();
 
 connectDB();
 

@@ -99,7 +99,12 @@ const Checkout = () => {
               {itemsToCheckout.map((item) => (
                 <div key={item.id} className="flex items-center gap-4 rounded-3xl bg-white p-4 shadow-sm">
                   <div className="h-16 w-16 overflow-hidden rounded-3xl bg-slate-100">
-                    <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
+                    <img
+                      src={item.image || (item.images && item.images[0]) || 'https://placehold.co/64x64?text=IMG'}
+                      alt={item.title || item.name}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-[#1E3A1A]">{item.title}</p>
